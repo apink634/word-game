@@ -152,7 +152,7 @@ A reviewer said the game feels too close to Wordle ([issue #1](https://github.co
 - **Tool:** Claude (Anthropic)
 - **What it helped with:** drafting the concept comparison, the five stories, the architecture sketch and the structure of this record.
 - **What I changed:** changed game to be less similar to wordle
-- **How I verified it:** I opened each source above and confirmed it says what this page claims (fill in dates once done). Claims I couldn't confirm: none
+- **How I verified it:** I opened each source above and confirmed it says what this page claims. Claims I couldn't confirm: none
 
 ---
 
