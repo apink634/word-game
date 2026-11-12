@@ -138,12 +138,12 @@ A reviewer said the game feels too close to Wordle ([issue #1](https://github.co
 
 | Source | Date checked | What I used it for |
 |---|---|---|
-| [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html) | ____ | Why passwords must be hashed |
-| [Werkzeug security utilities](https://werkzeug.palletsprojects.com/en/stable/utils/#module-werkzeug.security) | ____ | Password hashing functions |
-| [Flask-Login docs](https://flask-login.readthedocs.io/) | ____ | User sessions |
-| [Flask-WTF CSRF docs](https://flask-wtf.readthedocs.io/en/stable/csrf/) | ____ | CSRF protection on forms |
-| [Flask docs](https://flask.palletsprojects.com/) | ____ | App structure |
-| [Course example game](https://kaw393939.github.io/is218-studio/examples/full-game.html) | ____ | Reference stack and features |
+| [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html) | 2026-11-12 | Why passwords must be hashed |
+| [Werkzeug security utilities](https://werkzeug.palletsprojects.com/en/stable/utils/#module-werkzeug.security) | 2026-11-12 | Password hashing functions |
+| [Flask-Login docs](https://flask-login.readthedocs.io/) | 2026-11-12 | User sessions |
+| [Flask-WTF CSRF docs](https://flask-wtf.readthedocs.io/en/stable/csrf/) | 2026-11-12 | CSRF protection on forms |
+| [Flask docs](https://flask.palletsprojects.com/) | 2026-11-12 | App structure |
+| [Course example game](https://kaw393939.github.io/is218-studio/examples/full-game.html) | 2026-11-12 | Reference stack and features |
 
 ---
 
@@ -151,8 +151,8 @@ A reviewer said the game feels too close to Wordle ([issue #1](https://github.co
 
 - **Tool:** Claude (Anthropic)
 - **What it helped with:** drafting the concept comparison, the five stories, the architecture sketch and the structure of this record.
-- **What I changed:** ____
-- **How I verified it:** I opened each source above and confirmed it says what this page claims (fill in dates once done). Claims I couldn't confirm: ____
+- **What I changed:** changed game to be less similar to wordle
+- **How I verified it:** I opened each source above and confirmed it says what this page claims (fill in dates once done). Claims I couldn't confirm: none
 
 ---
 
