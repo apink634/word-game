@@ -2,9 +2,9 @@
 
 **IS218-003 · Creative Project · Current stage: Review 1 (Plan)**
 
-- Repository: https://github.com/YOUR-USERNAME/word-game
-- This site: https://YOUR-USERNAME.github.io/word-game/
-- My career research site: YOUR-CAREER-SITE-URL
+- Repository: https://github.com/apink634/word-game
+- This site: https://apink634.github.io/word-game/
+- My career research site: https://apink634.github.io/career-research/
 
 > Research sites are due at Plan, not finished applications. Everything below is a plan unless marked **observed**.
 
