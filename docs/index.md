@@ -123,6 +123,15 @@ tests/ ─────────── pytest: game rules, auth, ownership, pe
 - **Fallback:** hand-written hints for a fixed list of 50 words.
 - **Status:** planned, not attempted.
 
+### Investigating after peer review: make the mechanic less like Wordle
+
+A reviewer said the game feels too close to Wordle ([issue #1](https://github.com/apink634/word-game/issues/1)). I'll test **one** change that fits my existing AI hint experiment:
+
+- **Change:** hints become a limited ability. A player gets 2 hints per round and chooses when to use them, and each hint costs one guess.
+- **Why this one:** it reuses the hint work I already planned, adds a real decision for the player, and doesn't add a new workflow to the promise.
+- **Check (planned):** a classmate plays a paper or prototype round and says whether it feels different from Wordle.
+- **Deferred to Dream:** story progression, themed word sets, connected rounds and timed streaks. These are good ideas but would add scope.
+
 ---
 
 ## Sources
@@ -151,7 +160,7 @@ tests/ ─────────── pytest: game rules, auth, ownership, pe
 
 | Reviewer | Date | What they tried | Feedback | Issue | Decision |
 |---|---|---|---|---|---|
-| ____ | ____ | Opened a source, explained a choice, named an assumption or confusing part | ____ | #__ | implement / investigate / defer / decline, because ____ |
+| dhruvi0805 | 2026-11-12 | Read the concept and plan | The game feels too similar to Wordle; suggested clues/abilities, story, themes, connected rounds | [#1](https://github.com/apink634/word-game/issues/1) | **Investigate**, because a mechanic change is worth testing but I need to keep scope small. Planned one change (limited hints as an ability), and deferred the rest to Dream. Issue stays open until I test it. |
 
 ---
 
