@@ -1,6 +1,6 @@
 # Word Game — Project Record & Programming Research Site
 
-**IS218-003 · Creative Project · Current stage: Review 1 (Plan)**
+**IS218-003 · Creative Project · Current stage: Review 2 (Plan/SPEC checkpoint, no working app yet)**
 
 - Repository: https://github.com/apink634/word-game
 - This site: https://apink634.github.io/word-game/
@@ -16,7 +16,7 @@
 |---|---|
 | **Research question** | What is the smallest word-guessing game I can build that is secure, saves each player's history privately, and is easy to test? |
 | **Audience** | Casual players who want a quick daily brain break |
-| **Main task** | Play one round: guess a 5-letter word in up to 6 tries |
+| **Main task** | Play one round: guess a 5-letter word in up to 6 tries, with up to 2 hints that each cost a guess |
 | **Dream** | A word game with daily puzzles, streaks, themed word packs and friend leaderboards |
 | **Promise** | A signed-in player plays one round. The result is saved, the player sees past rounds and win rate on a private dashboard, and they can change their display name and password. |
 | **Experiment** | AI-written one-line hints (see below) |
@@ -67,7 +67,7 @@
    - Success: password stored hashed; I'm signed in after sign-up.
    - Failure: duplicate email is rejected; weak or empty password is rejected.
 2. **Play a round.** As a signed-in player, I want to guess a 5-letter word in up to 6 tries and see which letters are correct, misplaced or absent.
-   - Success: the server scores each guess; the round ends on a win or after 6 guesses.
+   - Success: the server scores each guess; the round ends on a win or after 6 guesses. I can use up to 2 hints; each hint uses up one guess. *(Added after [issue #1](https://github.com/apink634/word-game/issues/1).)*
    - Failure: guesses that aren't 5 letters or aren't in the word list are rejected; the answer is never sent to the browser before the round ends.
 3. **Save my result.** As a player, I want each finished round saved so my progress isn't lost.
    - Success: the round is stored with my user ID, word, guesses used and win/loss, and is still there after logging out and back in.
@@ -103,7 +103,7 @@ tests/ ─────────── pytest: game rules, auth, ownership, pe
 
 **Data sketch:**
 - `users`: id, email (unique), display_name, password_hash, created_at
-- `rounds`: id, user_id → users.id, word, guesses_used, won, finished_at
+- `rounds`: id, user_id → users.id, word, guesses_used, hints_used, won, finished_at
 - `words.txt`: allowed 5-letter words (a file, not a table)
 
 ### Pattern experiment (planned)
@@ -160,10 +160,39 @@ A reviewer said the game feels too close to Wordle ([issue #1](https://github.co
 
 | Reviewer | Date | What they tried | Feedback | Issue | Decision |
 |---|---|---|---|---|---|
-| dhruvi0805 | 2026-11-12 | Read the concept and plan | The game feels too similar to Wordle; suggested clues/abilities, story, themes, connected rounds | [#1](https://github.com/apink634/word-game/issues/1) | **Investigate**, because a mechanic change is worth testing but I need to keep scope small. Planned one change (limited hints as an ability), and deferred the rest to Dream. Issue stays open until I test it. |
+| dhruvi0805 | 2026-11-12 | Read the concept and plan | The game feels too similar to Wordle; suggested clues/abilities, story, themes, connected rounds | [#1](https://github.com/apink634/word-game/issues/1) | **Investigate**, because a mechanic change is worth testing but I need to keep scope small. Planned one change (limited hints as an ability), and deferred the rest to Dream. **Change (2026-11-19):** hints added to story 2 and the `rounds` data sketch. **Verification:** not run. **Reviewer retry:** not yet; issue stays open until a classmate plays a prototype round. |
 
 ---
 
-## 2 · First working slice — *not due yet*
-## 3 · Integrated build — *not due yet*
+## 2 · Plan/SPEC checkpoint (Review 2)
+
+> Per the Nov 19 clarification, this checkpoint is the plan/SPEC. **No working app exists yet**, and every check below is **planned, not run**.
+
+### What I chose to build
+
+A Flask word-guessing game. A player signs up or signs in, plays one round (5-letter word, 6 guesses, up to 2 hints that each cost a guess), the finished round is saved to SQLite, the player sees past rounds and win rate on a private dashboard, changes their display name or password, and signs out. Game rules live in `game.py` with no Flask or database code, so they're the first thing I'll test.
+
+**Changed since Review 1:** hints became a limited ability after peer review ([issue #1](https://github.com/apink634/word-game/issues/1)), and `rounds` now stores `hints_used`.
+
+### The one check I'll run first when the app is ready
+
+**Duplicate-letter scoring** (a unit test on `game.py`). Answer `CRANE`, guess `EERIE` → **absent, absent, present, absent, correct**. Only one `E` is in the answer, and it's already matched in the last position, so the first two `E`s must be absent. This is the rule simple scoring code usually gets wrong. Status: **planned, not run.**
+
+### Other planned checks
+
+| Story | Check | Type | Status |
+|---|---|---|---|
+| 1 · Account | Stored password is a hash, not the plain text; a duplicate email is rejected | integration (pytest + Flask test client) | planned |
+| 2 · Play | A 4-letter or non-list guess is rejected and doesn't use up a guess; the answer isn't in the page before the round ends | integration | planned |
+| 2 · Hints | A third hint is refused; each hint reduces the guesses left by 1 | unit | planned |
+| 3 · Save | A finished round is still there after logging out and in; an unfinished round isn't saved | integration | planned |
+| 4 · Dashboard | Player B gets a 404 when opening player A's round by URL | integration | planned |
+| 5 · Account update | A password change without the correct current password is rejected | integration | planned |
+
+### Changed / Checked / Next
+
+- **Changed:** Moved the record to the Review 2 plan/SPEC stage, added hints to the SPEC after issue #1, and named the first check.
+- **Checked:** Nothing run yet; all checks are planned because there's no code.
+- **Next:** Build `game.py` with the duplicate-letter test first, then sign up → play → save → sign out.
+## 3 · First working slice and integrated build — *not due yet*
 ## 4 · Improve and hand off — *not due yet*
