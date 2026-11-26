@@ -247,7 +247,7 @@ So I changed the core mechanic to **Word Chain**, which is one of Dhruvi's own s
 | Chain rules | Next word follows the last letter, no reused words, 3 misses end it, hint costs a guess, every answer can be continued | **observed** (automated) |
 | Tests on my own laptop (Windows, Python 3.14) | `python -m pytest -q` passed (44 tests on the first version) | **observed** 2026-11-26 |
 | My play test of the first version | Real words rejected and too much like Wordle, which led to the bigger word list and the switch to Word Chain | **observed** 2026-11-26 |
-| My play test of Word Chain, keyboard only | | not run yet |
+| My play test of Word Chain, keyboard only | `python -m pytest -q` → 45 passed; I played a chain of 4 with the keyboard. It felt different from Wordle, which was the goal of the change. | **observed** 2026-11-26 |
 
 ### Pattern experiment result
 
@@ -313,7 +313,7 @@ Claude wrote most of the code and tests from my SPEC and wrote the clues. I chos
 ### Changed / Checked / Next
 
 - **Changed:** Built the full game; after my play test, enlarged the word list and switched the mechanic to Word Chain (issue #1); ran the pattern and AI experiments.
-- **Checked:** 45 automated tests (wrong passwords, second user, stale sessions, duplicate results, persistence, chain rules); my play test of the first version; AI clues: 15/20 helpful.
-- **Next:** Play Word Chain keyboard-only; Dhruvi retries for issue #1; rewrite the 5 too-easy clues and judge the new ones.
+- **Checked:** 45 automated tests (wrong passwords, second user, stale sessions, duplicate results, persistence, chain rules); my play tests of both versions (Word Chain: a chain of 4, keyboard only); AI clues: 15/20 helpful.
+- **Next:** Dhruvi retries for issue #1; rewrite the 5 too-easy clues and judge the new ones.
 
 ## 4 · Improve and hand off — *not due yet*
