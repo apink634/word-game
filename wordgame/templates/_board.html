@@ -1,0 +1,6 @@
+{# The solved chain so far, e.g. APPLE → EAGLE → EARTH #}
+{% if solved %}
+<ol class="chain" aria-label="Your chain so far">
+  {% for word in solved %}<li class="link">{{ word|upper }}</li>{% endfor %}
+</ol>
+{% endif %}

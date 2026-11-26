@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Play · Word Chain{% endblock %}
+{% block content %}
+<h1>Word Chain</h1>
+<details class="howto" {% if not round %}open{% endif %}>
+  <summary>How to play</summary>
+  <ul>
+    <li>Read the <strong>clue</strong> and guess the <strong>5-letter word</strong>. You know its first letter, and you get <strong>{{ tries }} guesses</strong> per word.</li>
+    <li>Solve it and the chain grows: the <strong>next word starts with the last letter</strong> of this one (for example STAMP → PRISM → MAGIC).</li>
+    <li>Need help? The <strong>hint shows the last letter</strong>, so you can see where the chain goes next, but it <strong>costs a guess</strong>.</li>
+    <li>Miss a word {{ tries }} times and the chain ends. Your score is how long your chain got.</li>
+  </ul>
+</details>
+{% if not round %}
+  <form method="post" action="{{ url_for('play.new_round') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit">Start a new chain</button>
+  </form>
+{% else %}
+  <p class="score">Chain: <strong>{{ state.length }}</strong></p>
+  {% include "_board.html" %}
+  <section class="clue" aria-labelledby="clue-title">
+    <h2 id="clue-title">Next word</h2>
+    <p class="pattern" aria-label="Starts with {{ first_letter }}{% if last_letter %}, ends with {{ last_letter }}{% endif %}, 5 letters">
+      {{ first_letter }} _ _ _ {{ last_letter or '_' }}
+    </p>
+    <p><strong>Clue:</strong> {{ clue }}</p>
+    {% if wrong %}<p>Not: {{ wrong|join(', ') }}</p>{% endif %}
+    <p>Guesses left for this word: <strong>{{ tries_left }}</strong></p>
+  </section>
+  <form method="post" action="{{ url_for('play.guess') }}" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="expected_moves" value="{{ state.moves }}">
+    <label for="guess">Your guess (starts with {{ first_letter }})</label>
+    <input id="guess" name="guess" maxlength="5" autocomplete="off" autocapitalize="characters" required autofocus>
+    <button type="submit">Guess</button>
+  </form>
+  {% if can_hint %}
+  <form method="post" action="{{ url_for('play.hint') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="expected_moves" value="{{ state.moves }}">
+    <button type="submit" class="secondary">Show the last letter (costs 1 guess)</button>
+  </form>
+  {% endif %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Log in · Word Chain{% endblock %}
+{% block content %}
+<h1>Log in</h1>
+<form method="post" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="email">Email</label>
+  <input id="email" name="email" type="email" autocomplete="email" required value="{{ email or '' }}">
+  <label for="password">Password</label>
+  <input id="password" name="password" type="password" autocomplete="current-password" required>
+  <button type="submit">Log in</button>
+</form>
+<p>New here? <a href="{{ url_for('auth.signup') }}">Create an account</a></p>
+{% endblock %}

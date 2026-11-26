@@ -1,12 +1,12 @@
-# Word Game — Project Record & Programming Research Site
+# Word Chain (Word Game) — Project Record & Programming Research Site
 
-**IS218-003 · Creative Project · Current stage: Review 2 (Plan/SPEC checkpoint, no working app yet)**
+**IS218-003 · Creative Project · Current stage: Review 3 (Integrated build, runs locally)**
 
 - Repository: https://github.com/apink634/word-game
 - This site: https://apink634.github.io/word-game/
 - My career research site: https://apink634.github.io/career-research/
 
-> Research sites are due at Plan, not finished applications. Everything below is a plan unless marked **observed**.
+> Checks are marked **planned** or **observed**. Nothing is marked observed unless it was actually run.
 
 ---
 
@@ -16,15 +16,15 @@
 |---|---|
 | **Research question** | What is the smallest word-guessing game I can build that is secure, saves each player's history privately, and is easy to test? |
 | **Audience** | Casual players who want a quick daily brain break |
-| **Main task** | Play one round: guess a 5-letter word in up to 6 tries, with up to 2 hints that each cost a guess |
+| **Main task** | Play one chain: solve a clue (3 guesses per word); each next word starts with the last letter of the one before. *(Changed at Review 3 from a Wordle-style round; see Review 3.)* |
 | **Dream** | A word game with daily puzzles, streaks, themed word packs and friend leaderboards |
-| **Promise** | A signed-in player plays one round. The result is saved, the player sees past rounds and win rate on a private dashboard, and they can change their display name and password. |
+| **Promise** | A signed-in player plays one chain. The result (chain length and words) is saved, the player sees past chains, best and average on a private dashboard, and they can change their display name and password. |
 | **Experiment** | AI-written one-line hints (see below) |
 | **Stack** | Python 3.12, Flask, SQLite, Flask-Login, Werkzeug password hashing, Flask-WTF (CSRF), pytest |
 | **Why this stack** | Matches the course example, so I have a working reference. Python is my strongest language. SQLite needs no separate server. |
 | **Deferred features** | Daily shared puzzle, streaks, leaderboards, themed packs, mobile layout |
-| **Setup** | Not yet; no code at Plan stage |
-| **Checks** | None run yet. All checks below are **planned**. |
+| **Setup** | See the [README](https://github.com/apink634/word-game#readme); runs locally |
+| **Checks** | See Review 3: automated tests and my own play tests |
 
 ---
 
@@ -194,5 +194,126 @@ A Flask word-guessing game. A player signs up or signs in, plays one round (5-le
 - **Changed:** Moved the record to the Review 2 plan/SPEC stage, added hints to the SPEC after issue #1, and named the first check.
 - **Checked:** Nothing run yet; all checks are planned because there's no code.
 - **Next:** Build `game.py` with the duplicate-letter test first, then sign up → play → save → sign out.
-## 3 · First working slice and integrated build — *not due yet*
+## 3 · Integrated build (Review 3)
+
+**What's built:** *Word Chain*, a Flask word game that runs locally. Sign up or log in → play a chain (solve a clue in 3 guesses; the next word starts with the last letter of the one you solved) → the finished chain is saved to SQLite → a private history dashboard shows past chains, best and average → change display name or password → log out.
+
+**Run it:** see the [README](https://github.com/apink634/word-game#readme) (`pip install -r requirements.txt`, then `python -m flask --app wordgame run`).
+
+### The big decision this stage: from Wordle-style to Word Chain
+
+I first built the Plan as written: guess a 5-letter word in 6 tries with green, yellow and gray tiles, plus 2 hints. When I played it myself, two problems showed up:
+1. **Most real words were rejected**, because the guess list was too small (616 words). I fixed that with a 6,801-word dictionary list.
+2. **It still felt too much like Wordle**, which was exactly Dhruvi's feedback in [issue #1](https://github.com/apink634/word-game/issues/1). Adding hints wasn't enough to change that.
+
+So I changed the core mechanic to **Word Chain**, which is one of Dhruvi's own suggestions ("connected rounds"):
+- Each word comes from a **clue** (these are the AI-written clues from my experiment). You know the first letter and get **3 guesses**.
+- The **next word starts with the last letter** of the one you solved.
+- A **hint reveals the last letter and costs a guess**. That keeps the "hints cost a try" idea and adds strategy, because the last letter tells you where the chain goes.
+- **Score = chain length.** The chain ends after 3 misses on one word, or when every possible next word has been used.
+
+**What carried over unchanged:** accounts, sessions, CSRF, ownership checks, duplicate-move protection, the dashboard idea, and the Strategy pattern (which now picks each next word).
+**What I dropped:** the color-tile scoring. So my Review 2 named check (CRANE / EERIE duplicate letters) no longer applies. The first check is now "every answer can be continued by another answer" (tested).
+
+### How it's built
+
+| File | Job |
+|---|---|
+| `wordgame/game.py` | Pure chain rules: guesses, the chain rule, 3 misses, hints costing a guess. No Flask, no database. |
+| `wordgame/pickers.py` | Pattern experiment: the function picker and the Strategy picker, plus `next_word` for the chain. |
+| `wordgame/db.py` | SQLite users and chains (each chain stored as JSON plus a move counter). All queries are parameterized. |
+| `wordgame/auth.py` | Sign up, log in and out, display name and password changes, session versioning. |
+| `wordgame/play.py` | Play, hint, private history, chain pages, ownership checks. |
+| `wordgame/data/` | 108 answer words with AI-written clues; 6,801 accepted guesses (GCIDE dictionary, via the MIT-licensed `english-words` package). |
+| `tests/` | 45 pytest tests. CI runs ruff and pytest on every push and PR. |
+
+**Security decisions**
+- Passwords are hashed with Werkzeug (scrypt). A wrong password and an unknown email get the same reply.
+- CSRF tokens are required on every form (Flask-WTF, kept on in tests too).
+- **Session versioning:** changing the password or logging out bumps a version number, so an old or copied session cookie stops working.
+- **Duplicate moves and results:** every form carries the move count the player saw. The database only saves the move if the chain is still at that count, so a double click, back button or second tab can't count a guess or a result twice. Only one unfinished chain per player is allowed (unique index).
+- **Ownership:** another player's chain returns 404. The current answer is never sent to the page, only its clue and first letter.
+- No JavaScript at all, with a strict Content-Security-Policy. Words are picked with the OS's secure random source.
+
+### Review 3 checks
+
+| Check the assignment asks for | How it's tested | Status |
+|---|---|---|
+| Wrong passwords | Wrong password and unknown email both get 401 and the same message; still logged out | **observed** (automated) |
+| Second-user access | User B gets 404 on user A's chain and doesn't see it in their history; B's moves only change B's chain | **observed** (automated) |
+| Stale sessions | After a password change, the other device is logged out; after logout, a copied cookie is rejected; the old password fails | **observed** (automated) |
+| Duplicate result requests | Re-sending a solving guess counts once; re-sending the final move records one result; double-clicking "new chain" makes one chain | **observed** (automated) |
+| Persistence | History is still there after the app restarts on the same database | **observed** (automated) |
+| Chain rules | Next word follows the last letter, no reused words, 3 misses end it, hint costs a guess, every answer can be continued | **observed** (automated) |
+| Tests on my own laptop (Windows, Python 3.14) | `python -m pytest -q` passed (44 tests on the first version) | **observed** 2026-11-26 |
+| My play test of the first version | Real words rejected and too much like Wordle, which led to the bigger word list and the switch to Word Chain | **observed** 2026-11-26 |
+| My play test of Word Chain, keyboard only | | not run yet |
+
+### Pattern experiment result
+
+**Problem:** how the game picks words: the first word, and now each next word in the chain.
+
+| | Function `pick_word` | Strategy (`RandomPicker`, `DailyPicker`) |
+|---|---|---|
+| Code lines | 2 | 15 (protocol 2, random 5, daily 6, chooser 2) |
+| Testing | Easy with a seeded `Random` | Just as easy: a seeded `Random` or a fixed date |
+| Adding a daily chain | Needs a second function plus an `if` wherever a word is picked (first word **and** every next word) | One new class. `play.py` and `next_word` just call `picker.pick(...)` |
+
+**Result:** the function is simpler for random-only. But Word Chain picks a word at every link, and I added a daily option, so the Strategy version kept the routes unchanged. The app uses it (set `WORDGAME_PICKER=daily` for one shared chain per day). Both versions stay in `pickers.py` for comparison.
+
+### AI experiment result (clues)
+
+**Setup:** an AI assistant (Claude) wrote a one-line clue for each answer word (`wordgame/data/hints.json`). In Word Chain, these clues are now the main way you find each word. An automated rule hides any clue that contains its own answer, and the game then shows a "5-letter word ending in …" clue instead.
+
+**Automated check (observed):** 1 clue gives the answer away. TOAST's clue mentions a "toaster", and the game refuses to show it (tested).
+
+**My judgment of 20 clues (2026-11-26):**
+
+| # | Word | AI clue | Automated flag | My judgment |
+|---|---|---|---|---|
+| 1 | APPLE | A crunchy fruit that keeps the doctor away in an old saying. |  | helpful |
+| 2 | BRAIN | The organ you're using to solve this puzzle. |  | helpful |
+| 3 | CHAIR | Furniture with four legs and a back, made for sitting. |  | gives it away |
+| 4 | CRANE | A tall bird on long legs, or a machine that lifts heavy loads. |  | helpful |
+| 5 | DREAM | A story your mind tells while you sleep. |  | helpful |
+| 6 | EAGLE | A large bird of prey and a U.S. national symbol. |  | gives it away |
+| 7 | FROST | Thin ice that forms on grass on cold mornings. |  | helpful |
+| 8 | HEART | It pumps blood through your body. |  | gives it away |
+| 9 | KNIFE | A kitchen tool with a sharp blade. |  | gives it away |
+| 10 | LIGHT | What a lamp gives off; the opposite of dark. |  | gives it away |
+| 11 | MOUSE | A small rodent, or the thing you click with. |  | helpful |
+| 12 | NIGHT | The dark hours between sunset and sunrise. |  | helpful |
+| 13 | OLIVE | A small green or black fruit pressed for oil. |  | helpful |
+| 14 | QUEEN | A female ruler, or the most powerful chess piece. |  | helpful |
+| 15 | RADIO | A device for listening to broadcasts and stations. |  | helpful |
+| 16 | ROBOT | A machine that can carry out tasks on its own. |  | helpful |
+| 17 | SPACE | Where astronauts and stars are. |  | helpful |
+| 18 | TABLE | Furniture with a flat top where you eat. |  | helpful |
+| 19 | TOAST | Bread browned in a toaster, or a speech before a drink. | **gives it away** (contains the word) | helpful |
+| 20 | WORLD | All the countries and people on the planet. |  | helpful |
+
+
+**Result:** 15 helpful, **5 give it away** (CHAIR, EAGLE, HEART, KNIFE, LIGHT), 0 wrong.
+- **That's over my stopping line** (more than 4 of 20), so the first-attempt AI clues don't pass. Next step from the Plan: one stricter prompt ("describe it indirectly; don't name its main use or most famous fact"), or hand-written clues if that fails.
+- **The automated rule and I disagreed once:** I judged TOAST helpful, but the rule hides it because it mentions "toaster". The rule catches word leaks; only a person catches clues that are simply too obvious.
+- **In Word Chain this matters less than before:** a too-easy clue makes one link easy, but the chain still depends on every other word. I haven't judged the 58 clues added for Word Chain yet.
+
+### Peer feedback loop (issue #1)
+
+Issue (too similar to Wordle) → decision at Review 2: **Investigate** (try limited hints) → **verification by me at Review 3:** with hints, it still felt like Wordle → **new decision: Accept** → **change:** core mechanic rebuilt as Word Chain, using Dhruvi's "connected rounds" idea → **reviewer retry:** not yet; Dhruvi plays one chain and says whether it now feels different.
+
+### Presentation
+
+A plain, readable page: the chain so far shown as word badges, then the next word as a pattern like `E _ _ _ _`, with the clue under it. The "How to play" box is open until you start. There's no JavaScript, so everything works with Tab and Enter. The research site stays one record page, cross-linked to my career site.
+
+### AI assistance (Review 3)
+
+Claude wrote most of the code and tests from my SPEC and wrote the clues. I chose the game, judged the first version by playing it, decided to switch to Word Chain and chose the rules, judged 20 clues, and ran the tests on my laptop.
+
+### Changed / Checked / Next
+
+- **Changed:** Built the full game; after my play test, enlarged the word list and switched the mechanic to Word Chain (issue #1); ran the pattern and AI experiments.
+- **Checked:** 45 automated tests (wrong passwords, second user, stale sessions, duplicate results, persistence, chain rules); my play test of the first version; AI clues: 15/20 helpful.
+- **Next:** Play Word Chain keyboard-only; Dhruvi retries for issue #1; rewrite the 5 too-easy clues and judge the new ones.
+
 ## 4 · Improve and hand off — *not due yet*
