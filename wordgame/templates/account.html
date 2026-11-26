@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Account · Word Chain{% endblock %}
+{% block content %}
+<h1>Account</h1>
+<p>Signed in as <strong>{{ current_user.email }}</strong></p>
+<section aria-labelledby="name-title">
+  <h2 id="name-title">Display name</h2>
+  <form method="post" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="name">
+    <label for="display_name">Display name</label>
+    <input id="display_name" name="display_name" maxlength="30" required value="{{ current_user.display_name }}">
+    <button type="submit">Save name</button>
+  </form>
+</section>
+<section aria-labelledby="pw-title">
+  <h2 id="pw-title">Change password</h2>
+  <form method="post" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="password">
+    <label for="current_password">Current password</label>
+    <input id="current_password" name="current_password" type="password" autocomplete="current-password" required>
+    <label for="new_password">New password (at least 8 characters)</label>
+    <input id="new_password" name="new_password" type="password" minlength="8" autocomplete="new-password" required>
+    <button type="submit">Change password</button>
+  </form>
+  <p class="small">Changing your password signs you out on every other device.</p>
+</section>
+{% endblock %}

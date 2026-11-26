@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Word Chain</h1>
+<p class="lede">Solve a clue, then keep going: each new word starts with the last letter of the one before. How long can you make your chain?</p>
+{% if current_user.is_authenticated %}
+  <p><a class="button" href="{{ url_for('play.play') }}">Play a round</a></p>
+{% else %}
+  <p><a class="button" href="{{ url_for('auth.signup') }}">Create an account</a> or <a href="{{ url_for('auth.login') }}">log in</a></p>
+{% endif %}
+<p class="small">Your finished rounds are saved to your private history. Only you can see them.</p>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Chain result · Word Chain{% endblock %}
+{% block content %}
+<h1>Chain of {{ state.length }}</h1>
+<ol class="results">
+  {% for link in state.links %}
+  <li>
+    <strong>{{ link.word|upper }}</strong>
+    {% if link.solved %}✓ in {{ link.guesses|length }} guess{{ '' if link.guesses|length == 1 else 'es' }}{% if link.hinted %} + hint{% endif %}
+    {% else %}✗ missed{% if link.guesses %} (you tried {{ link.guesses|map('upper')|join(', ') }}){% endif %}{% endif %}
+    <br><span class="small">Clue: {{ clue_for(link.word) }}</span>
+  </li>
+  {% endfor %}
+</ol>
+<p><a class="button" href="{{ url_for('play.play') }}">New chain</a> · <a href="{{ url_for('play.dashboard') }}">My history</a></p>
+{% endblock %}

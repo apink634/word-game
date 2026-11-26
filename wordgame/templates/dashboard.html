@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}My history · Word Chain{% endblock %}
+{% block content %}
+<h1>{{ current_user.display_name }}'s history</h1>
+{% if active %}<p class="flash">You have a chain in progress. <a href="{{ url_for('play.play') }}">Continue it</a></p>{% endif %}
+<dl class="stats">
+  <div><dt>Chains played</dt><dd>{{ stats.played }}</dd></div>
+  <div><dt>Best chain</dt><dd>{{ stats.best }}</dd></div>
+  <div><dt>Average chain</dt><dd>{{ stats.average if stats.average is not none else '–' }}</dd></div>
+</dl>
+{% if chains %}
+<table>
+  <caption>Finished chains, newest first</caption>
+  <thead><tr><th scope="col">Length</th><th scope="col">Words</th><th scope="col"></th></tr></thead>
+  <tbody>
+  {% for c in chains %}
+    <tr><td>{{ c.length }}</td><td>{{ c.words|join(' → ') or '—' }}</td><td><a href="{{ url_for('play.round_detail', round_id=c.id) }}">View<span class="sr"> chain of {{ c.length }}</span></a></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No finished chains yet. <a href="{{ url_for('play.play') }}">Start one</a></p>
+{% endif %}
+{% endblock %}
